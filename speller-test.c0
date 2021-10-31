@@ -1,0 +1,135 @@
+/**************************************************************************/
+/*              COPYRIGHT Carnegie Mellon University 2021                 */
+/* Do not post this file or any derivative on a public site or repository */
+/**************************************************************************/
+#use <conio>
+#use <parse>
+
+// You are welcome to define helper functions for your tests
+
+int main() {
+  // Create a few texts and dictionaries by hand
+
+
+  // Later on, read some texts and dictionaries from file
+
+
+  // Using them, test the functions check_word and check_text_better
+  // you wrote in file speller.c0
+  string [] dict1 = parse_tokens("code cooperate extend frown master outside research suitcase time tolerate");
+  string [] dict2 = parse_tokens("bath bleach house mammoth person squid youtube");
+  string [] dict3 = parse_tokens("almighty antithesis balance compulsory deathdealing explode fear glutton heat iron jail knowledge love miracle overkill power question roar superstar thunderbolt underbelly visionary wind xaxis yourself zombie");
+  string [] dict4 = parse_tokens("a b c d e f g");
+  int length1 = 10;
+  int length2 = 7;
+  int length3 = 26;
+  int length4 = 7;
+  assert(check_word(dict1,length1,"frown"));
+  assert(check_word(dict1,length1,"cooperate"));
+  assert(check_word(dict1,length1,"code"));
+  assert(check_word(dict1,length1,"time"));
+  assert(check_word(dict1,length1,"research"));
+  assert(check_word(dict1,length1,"suitcase"));
+  assert(!check_word(dict1,length1,"apple"));
+  assert(!check_word(dict1,length1,"frawn"));
+  assert(!check_word(dict1,length1,"coperate"));
+  assert(!check_word(dict1,length1,"sitcase"));
+  assert(!check_word(dict1,length1,"rawarch"));
+
+  assert(check_word(dict2,length2,"mammoth"));
+  assert(check_word(dict2,length2,"squid"));
+  assert(check_word(dict2,length2,"bath"));
+  assert(check_word(dict2,length2,"bleach"));
+  assert(check_word(dict2,length2,"person"));
+  assert(check_word(dict2,length2,"youtube"));
+  assert(!check_word(dict2,length2,"mamoth"));
+  assert(!check_word(dict2,length2,"squidd"));
+  assert(!check_word(dict2,length2,"parson"));
+  assert(!check_word(dict2,length2,"person "));
+  assert(!check_word(dict2,length2,"blaech"));
+
+  assert(check_word(dict3,length3,"almighty"));
+  assert(check_word(dict3,length3,"antithesis"));
+  assert(check_word(dict3,length3,"balance"));
+  assert(check_word(dict3,length3,"zombie"));
+  assert(check_word(dict3,length3,"yourself"));
+  assert(check_word(dict3,length3,"xaxis"));
+  assert(check_word(dict3,length3,"wind"));
+  assert(check_word(dict3,length3,"power"));
+  assert(!check_word(dict3,length3,"almight"));
+  assert(!check_word(dict3,length3,"belance "));
+  assert(!check_word(dict3,length3,"zombei"));
+  assert(!check_word(dict3,length3,"yourslef"));
+  assert(!check_word(dict3,length3,"praixs"));
+  assert(!check_word(dict3,length3,"wined"));
+
+  assert(check_word(dict4,length4,"a"));
+  assert(check_word(dict4,length4,"b"));
+  assert(check_word(dict4,length4,"c"));
+  assert(check_word(dict4,length4,"d"));
+  assert(check_word(dict4,length4,"e"));
+  assert(check_word(dict4,length4,"f"));
+  assert(check_word(dict4,length4,"g"));
+  assert(!check_word(dict4,length4,"h"));
+  assert(!check_word(dict4,length4,"i"));
+  assert(!check_word(dict4,length4,"j"));
+  assert(!check_word(dict4,length4,"w"));
+  assert(!check_word(dict4,length4,"x"));
+  assert(!check_word(dict4,length4,"y"));
+  assert(!check_word(dict4,length4,"z"));
+
+  string[] text1 = parse_tokens("code cod extend extnd frawn rsearch tolerat");
+  int text_length1 = 7;
+  int miss_length1 = 5;
+  string []incorrect1 = parse_tokens("cod extnd frawn rsearch tolerat");
+  string []miss1 = alloc_array(string, text_length1);
+  assert(check_text_better(dict1, length1, text1, text_length1, miss1) == miss_length1);
+  for (int i = 0; i < miss_length1; i++) 
+  //@loop_invariant 0<=i && i<=miss_length1;
+  {
+    assert(string_compare(miss1[i], incorrect1[i]) == 0);
+  }
+
+  string [] text2 = parse_tokens("bath bleach blaech parson sqiud youtube squid");
+  int text_length2 = 7;
+  int miss_length2 = 3;
+  string []incorrect2 = parse_tokens("blaech parson sqiud");
+  string []miss2 = alloc_array(string, text_length2);
+  assert(check_text_better(dict2, length2, text2, text_length2, miss2) == miss_length2);
+  for (int i = 0; i < miss_length2; i++) 
+  //@loop_invariant 0<=i && i<=miss_length2;
+  {
+    assert(string_compare(miss2[i], incorrect2[i]) == 0);
+  }
+
+  string [] text3 = parse_tokens("bath bleach youtube squid");
+  int text_length3 = 4;
+  int miss_length3 = 0;
+  string []incorrect3 = parse_tokens("");
+  string []miss3 = alloc_array(string, text_length3);
+  assert(check_text_better(dict2, length2, text3, text_length3, miss3) == miss_length3);
+  for (int i = 0; i < miss_length3; i++) 
+  //@loop_invariant 0<=i && i<=miss_length3;
+  {
+    assert(string_compare(miss3[i], incorrect3[i]) == 0);
+  }
+
+  string [] text4 = parse_tokens("zombie zombe almighty almight power yourself balnce mricle");
+  int text_length4 = 8;
+  int miss_length4 = 4;
+  string []incorrect4 = parse_tokens("almight balnce mricle zombe");
+  string []miss4 = alloc_array(string, text_length4);
+  assert(check_text_better(dict3, length3, text4, text_length4, miss4) == miss_length4);
+  for (int i = 0; i < miss_length4; i++) 
+  //@loop_invariant 0<=i && i<=miss_length4;
+  {
+    assert(string_compare(miss4[i], incorrect4[i]) == 0);
+  }
+
+
+
+
+
+  printf("All tests passed!\n");
+  return 0;
+} 

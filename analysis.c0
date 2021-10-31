@@ -1,0 +1,70 @@
+#use <util>
+#use <args>
+#use <conio>
+
+
+int main() {
+    args_t args = args_parse();
+    int argc = args->argc;         
+    string[] argv = args->argv;    
+    bundle_t dictbundle = read_words(argv[0]);
+    bundle_t textbundle = read_words(argv[1]);
+    int dict_length = string_bundle_length(dictbundle);
+    int text_length = string_bundle_length(textbundle);
+    string[] dict = string_bundle_array(dictbundle);
+    string[] text = string_bundle_array(textbundle);
+    string[] miss = alloc_array(string, text_length);
+    int miss_length = check_text_better(dict, dict_length, 
+                                        text, text_length, miss);
+
+    println("There are ");
+    printint(miss_length);
+    println(" misspelled words in the text. ");
+
+    int len_8_mwords = 0;
+    for (int i = 0; i < miss_length; i++){
+        if (string_length(miss[i]) == 8) {
+            len_8_mwords++;
+        }
+    }
+    println("There are ");
+    printint(len_8_mwords);
+    println(" misspelled words of length 8 in the text. ");
+    
+    println("Here are the first 4 misspelled words of length 15 in the text: ");
+    int len_15_mwords = 0;
+    for (int i = 0; i < miss_length && len_15_mwords < 4; i++) {
+        if (string_length(miss[i]) == 15) {
+            printint(len_15_mwords+1);
+            println(". ");
+            println(miss[i]);
+            len_15_mwords++;
+        }
+    }
+    if (miss_length > 0) {
+        int len_last_mwords = 0;
+        println("The alphebetically-last misspelled word in the text is ");
+        println(miss[miss_length-1]);
+        println(" and it appears ");
+        for (int i = 0; i < text_length; i++) {
+            if (string_compare(text[i],miss[miss_length-1]) == 0) {
+                len_last_mwords++;
+            }
+        }
+        printint(len_last_mwords);
+        println(" times." );
+
+    }
+    else {
+        println("There were no misspelled words.");
+    }
+    return 0;
+
+
+  
+
+
+
+
+
+}

@@ -1,0 +1,199 @@
+#use <util>
+#use <conio>
+bool check_word(string[] dict, int d, string w)  
+//@requires \length(dict) == d;  
+//@requires is_sorted(dict, 0, d) && no_dupes(dict, 0, d);  
+{
+    int lo = 0;
+    int hi = d;
+    while (lo<hi)
+    //@loop_invariant 0<=lo && lo<=hi && hi<=d;
+    //@loop_invariant (lo==0 || string_compare(dict[lo-1], w)<0);
+    //@loop_invariant (hi==d || string_compare(dict[hi], w)>0);
+    {
+        int mid = lo + (hi-lo)/2;
+        if (string_compare(dict[mid],w) == 0) return true;
+        else if (string_compare(dict[mid],w) < 0) lo = mid +1;
+        else 
+        //@assert string_compare(dict[mid],w) > 0;
+        {
+            hi = mid;
+        }
+    }
+    //@assert lo==hi;
+    return false;
+}
+
+//checks if word is in an unsorted array
+bool check_word_unsorted(string[] dict, int d, string w) 
+{
+    for (int i = 0; i < d; i++)
+    //@loop_invariant 0<=i && i<=d;
+    {
+        if (string_compare(dict[i],w) == 0) return true;
+    }
+    return false;
+}
+
+int check_text_naive(string[] dict, int d, string[] text, int t, string[] miss)  
+//@requires \length(dict) == d;  
+//@requires \length(text) == t;  
+//@requires \length(miss) >= t;  
+//@requires is_sorted(dict, 0, d) && no_dupes(dict, 0, d);  
+//@ensures 0 <= \result && \result <= t;  
+//@ensures no_dupes(miss, 0, \result);  
+{
+    int miss_index = 0;
+    for (int i = 0; i < t; i++) 
+    //@loop_invariant 0<=i && i<=t;
+    //@loop_invariant miss_index<=t;
+    {
+        if (!check_word(dict, d, text[i])){
+            if (!check_word_unsorted(miss,miss_index,text[i])) {
+                miss[miss_index] = text[i];
+                miss_index++;
+            }
+
+        }
+    }
+    return miss_index;
+
+}
+
+int check_sorted_text(string[] dict, int d, string[] text, int t, string[] miss)  
+//@requires \length(dict) == d;  
+//@requires \length(text) >= t;  
+//@requires \length(miss) >= t;  
+//@requires is_sorted(dict, 0, d) && no_dupes(dict, 0, d);  
+//@requires is_sorted(text, 0, t) && no_dupes(text, 0, t);  
+//@ensures 0 <= \result && \result <= t;  
+//@ensures is_sorted(miss, 0, \result) && no_dupes(miss, 0, \result);  
+{
+    int dict_index = 0;
+    int miss_index = 0;
+    //loops through text
+    for (int text_index = 0; text_index < t; text_index++) 
+    //@loop_invariant 0<=text_index && text_index<=t;
+    {
+        /*loops through dict and compares with word in text. 
+        Since the text is sorted the loop stops once the dict runs out of words 
+        or the text word passes or equals the corresponding word in dict. */
+        while (dict_index < d 
+               && string_compare(dict[dict_index],text[text_index]) < 0) 
+        //@loop_invariant 0<=dict_index && dict_index<=d;
+        {
+            dict_index++;
+        } 
+        /*If the loop exits because the dict was entirely looped through,
+        that means every subsequent word in text is not in the dict 
+        because the text is sorted.*/
+        if (dict_index == d) {
+            for (int i = text_index; i < t; i++) {
+                miss[miss_index] = text[i];
+                miss_index++;
+            }
+            return miss_index;
+        }
+        /*If the loop exits because of the 2nd condition in the while loop,
+        that means either the word is spelled correctly or it is misspelled */
+        if (string_compare(dict[dict_index],text[text_index]) != 0) {
+            miss[miss_index] = text[text_index];
+            miss_index++;
+        }
+        else {
+            dict_index++;
+        }
+
+    }
+    return miss_index;
+
+} 
+
+
+int merge(string[] A, int lo1, int hi1, int lo2, int hi2)  
+//@requires 0 <= lo1 && lo1 < hi1 && hi1 <= lo2 && lo2 < hi2 && hi2 <= \length(A);  
+//@requires is_sorted(A, lo1, hi1) && no_dupes(A, lo1, hi1);  
+//@requires is_sorted(A, lo2, hi2) && no_dupes(A, lo2, hi2);  
+//@ensures 0 <= \result && \result <= hi2 - lo1;  
+//@ensures is_sorted(A, lo1, lo1 + \result) && no_dupes(A, lo1, lo1 + \result);  
+{
+    string [] temp = alloc_array(string, hi2-lo1-(lo2-hi1));
+    int temp_index = 0;
+    //Can't use variables in postcondition
+    int i = lo1;
+    int j = lo2;
+    while (i < hi1 && j < hi2) 
+    //@loop_invariant lo1<=i && i<=hi1;
+    //@loop_invariant lo2<=j && j<=hi2;
+    {
+        if (string_compare(A[i], A[j]) < 0) {
+            temp[temp_index] = A[i];
+            i++;
+            temp_index++;
+        }
+        else if (string_compare(A[i], A[j]) == 0) {
+            temp[temp_index] = A[i];
+            i++;
+            j++;
+            temp_index++;
+        }
+        else 
+        //@assert string_compare(A[i], A[j]) > 0;
+        {
+            temp[temp_index] = A[j];
+            j++;
+            temp_index++;
+        }
+        
+
+    }
+    //@assert i == hi1 || j == hi2;
+    //loops through remaining i and adds to temp
+    if (i < hi1) {
+        while (i < hi1) { 
+            temp[temp_index] = A[i]; 
+            i++; 
+            temp_index++; 
+        }
+    }
+    //loops through remaining j and adds to temp
+    if (j < hi2) {
+        while (j < hi2) { 
+            temp[temp_index] = A[j]; 
+            j++; 
+            temp_index++; 
+        }
+    }
+    for (int x = 0; x < temp_index; x++) 
+    {
+        A[lo1+x] = temp[x];
+    }
+    return temp_index;
+} 
+int mergesort(string[] A, int lo, int hi)  
+//@requires 0 <= lo && lo <= hi && hi <= \length(A);  
+//@ensures 0 <= \result && \result <= hi - lo;  
+//@ensures is_sorted(A, lo, lo + \result) && no_dupes(A, lo, lo + \result);  
+{
+    if ((hi-lo == 0) || (hi-lo) == 1) return hi-lo;
+    int mid = lo + (hi - lo) / 2;
+    //recursive mergesort
+    return merge(A, lo, lo + mergesort(A, lo, mid), 
+                 mid, mid + mergesort(A, mid, hi));
+
+} 
+
+
+//complexity:  n log n
+int check_text_better(string[] dict, int d, string[] text, int t, string[] miss)  
+//@requires \length(dict) == d;  
+//@requires \length(text) == t;  
+//@requires \length(miss) >= t;  
+//@requires is_sorted(dict, 0, d) && no_dupes(dict, 0, d);  
+//@ensures 0 <= \result && \result <= t;  
+//@ensures  is_sorted(miss, 0, \result) && no_dupes(miss, 0, \result);  
+{
+    
+    int msort_text = mergesort(text,0,t); 
+    return check_sorted_text(dict, d, text, msort_text, miss);
+} 
